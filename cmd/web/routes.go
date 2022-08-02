@@ -10,9 +10,6 @@ import (
 )
 
 func routes(app *config.AppConfig) http.Handler {
-	// mux := pat.New()
-	// mux.Get("/", http.HandlerFunc(handler.Repo.HOME))
-	// mux.Get("/about", http.HandlerFunc(handler.Repo.About))
 
 	mux := chi.NewRouter()
 	mux.Use(middleware.Recoverer)
@@ -21,6 +18,9 @@ func routes(app *config.AppConfig) http.Handler {
 	//mux.Use(WriteToConsole)
 	mux.Get("/", handler.Repo.HOME)
 	mux.Get("/about", handler.Repo.About)
+
+	fileserver := http.FileServer(http.Dir("./static/"))
+	mux.Handle("/static/*", http.StripPrefix("/static", fileserver))
 
 	return mux
 }
