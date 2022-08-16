@@ -1,12 +1,14 @@
 package handler
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
-	"github.com/usmans58/bookings/packages/config"
-	"github.com/usmans58/bookings/packages/models"
-	"github.com/usmans58/bookings/packages/render"
+	"github.com/usmans58/bookings/internal/config"
+	"github.com/usmans58/bookings/internal/models"
+	"github.com/usmans58/bookings/internal/render"
 )
 
 //Holds data set sent from the handlers to the templates
@@ -72,6 +74,27 @@ func (m *Repository) PostAvailability(w http.ResponseWriter, r *http.Request) {
 	end := r.Form.Get("end")
 
 	w.Write([]byte(fmt.Sprintf("start date is %s and end dateis %s", start, end)))
+}
+
+type jsonResponse struct {
+	OK      bool   `json:"ok"`
+	Message string `json:"message"`
+}
+
+//handles request for availability and sends JSON
+func (m *Repository) AvailabilityJSON(w http.ResponseWriter, r *http.Request) {
+	response := jsonResponse{
+		OK:      true,
+		Message: "Available!",
+	}
+
+	responseOut, err := json.MarshalIndent(response, "", "     ")
+	if err != nil {
+		log.Println(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(responseOut)
 
 }
 

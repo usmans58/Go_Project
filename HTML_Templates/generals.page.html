@@ -4,7 +4,8 @@
 <div class="container ">
     <div class="row">
         <div class="col">
-            <img src="/static/images/generals-quarters.png" alt="" class="img-fluid img-thumbnail mx-auto d-block room-image">
+            <img src="/static/images/generals-quarters.png" alt=""
+                class="img-fluid img-thumbnail mx-auto d-block room-image">
         </div>
     </div>
 
@@ -12,7 +13,12 @@
     <div class="row">
         <div class="col">
             <h1 class="text-center mt-5">General Quarters</h1>
-            <p class="text-center">God a radiant nights sainted the. Darkness late let forget devil throws, till heart whom leave though if soul, this god heart she chamber this sitting the. The a with of muttered such melancholy sitting shall. At as and or of the perched, beguiling betook i lost is god an. Spoke and perfumed a of. The both soon ah flitting bore. Within tempest and with my eyes and mefilled, morrow till of tell nevermore as chamber in. That bust prophet by tapping violet followed, word ominous my kind no separate door stopped straight. The thy craven for gaunt deep. Or.</p>
+            <p class="text-center">God a radiant nights sainted the. Darkness late let forget devil throws, till heart
+                whom leave though if soul, this god heart she chamber this sitting the. The a with of muttered such
+                melancholy sitting shall. At as and or of the perched, beguiling betook i lost is god an. Spoke and
+                perfumed a of. The both soon ah flitting bore. Within tempest and with my eyes and mefilled, morrow till
+                of tell nevermore as chamber in. That bust prophet by tapping violet followed, word ominous my kind no
+                separate door stopped straight. The thy craven for gaunt deep. Or.</p>
 
         </div>
 
@@ -23,12 +29,12 @@
         </div>
     </div>
 
-{{end}}
+    {{end}}
 
-{{define "js"}}
-<script>
-    document.getElementById("check-availability-button").addEventListener("click", function () {
-    let html = `
+    {{define "js"}}
+    <script>
+        document.getElementById("check-availability-button").addEventListener("click", function () {
+            let html = `
         <form id="check-availibility-form" method="post" action="" novalidate class="needs-validation">
             <div class="row">
                 <div class="col">
@@ -44,9 +50,44 @@
             </div>
         </form >
     `
-    attention.custom({ msg: html, title: "Choose your dates" });
+            attention.custom({
+                msg: html,
+                title: "Choose your dates",
+                willOpen: () => {
+                      const elem = document.getElementById("reservation-date-modal")
+                      const rp = new DateRangePicker(elem, {
+                          format: 'dd-mm-yyyy'
 
-})
-</script>
 
-{{end}}
+                      })
+                  },
+
+                  didOpen:()=>{
+                      document.getElementById('start').removeAttribute('disabled')
+                      document.getElementById('end').removeAttribute('disabled')
+                  },
+                  
+                callback: function (result) {
+                    console.log("called");
+
+                    let form =document.getElementById("check-availibility-form")
+                    let formData = new FormData(form)
+                    formData.append("csrf_token","{{.CSRFToken}}")
+
+                    fetch("/search-availability-json",{
+                        method: "post",
+                        body: formData,
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log(data);
+                            console.log(data.ok);
+                            console.log(data.message);
+                        })
+                }
+            });
+
+        })
+    </script>
+
+    {{end}}
